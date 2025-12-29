@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Claude Code plugins for enhanced developer workflows",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -13,7 +13,7 @@
       "name": "interactive-review",
       "source": "./plugins/interactive-review",
       "description": "Interactive markdown review with web UI - review plans and documents with checkbox approvals and inline comments",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Team Attention"
       },
