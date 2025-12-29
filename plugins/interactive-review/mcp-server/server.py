@@ -14,7 +14,9 @@ Provides the start_review tool that:
 import asyncio
 import json
 import os
+import signal
 import socket
+import sys
 import tempfile
 import threading
 import uuid
@@ -263,14 +265,34 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
     )]
 
 
+def setup_signal_handlers():
+    """Set up signal handlers for graceful shutdown."""
+    def handle_shutdown(signum, frame):
+        sys.exit(0)
+
+    signal.signal(signal.SIGTERM, handle_shutdown)
+    signal.signal(signal.SIGHUP, handle_shutdown)
+    signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+
+
 async def main():
     """Main entry point."""
-    async with stdio_server() as (read_stream, write_stream):
-        await app.run(
-            read_stream,
-            write_stream,
-            app.create_initialization_options()
-        )
+    setup_signal_handlers()
+
+    try:
+        async with stdio_server() as (read_stream, write_stream):
+            await app.run(
+                read_stream,
+                write_stream,
+                app.create_initialization_options()
+            )
+    except (BrokenPipeError, ConnectionResetError, EOFError):
+        # Parent process closed the pipe - exit gracefully
+        pass
+    except KeyboardInterrupt:
+        pass
+    finally:
+        sys.exit(0)
 
 
 if __name__ == "__main__":
