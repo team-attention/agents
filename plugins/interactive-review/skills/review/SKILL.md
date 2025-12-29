@@ -5,6 +5,7 @@ description: |
   - User says "review this", "check this plan", "/review"
   - User wants to give feedback on a plan or document
   - User says "let me review", "피드백", "검토해줘"
+  - User specifies a file path to review (e.g., "review /path/to/file.md")
 allowed-tools:
   - mcp__interactive_review__start_review
   - Read
@@ -12,11 +13,14 @@ allowed-tools:
 
 # Interactive Review Skill
 
-This skill opens an interactive web UI where users can review markdown content with checkboxes and comments.
+This skill opens an interactive web UI where users can review content with checkboxes and comments.
 
 ## How It Works
 
-1. Collect the most recent markdown content from the conversation (plan, document, etc.)
+1. Determine the content source:
+   - **If user specifies a file path**: Use the `Read` tool to get the file contents
+   - **If user provides content directly**: Use that content as-is
+   - **Otherwise**: Collect the most recent relevant content from the conversation
 2. Call `mcp__interactive_review__start_review` with the content
 3. A browser window opens automatically with the review UI
 4. User reviews each item:
@@ -25,13 +29,26 @@ This skill opens an interactive web UI where users can review markdown content w
 5. User clicks Submit
 6. Process the feedback and respond accordingly
 
+## Content Sources (Priority Order)
+
+1. **Explicit file path**: User says "review /path/to/file.md" or "이 파일 리뷰해줘: README.md"
+   - Read the file using `Read` tool and use its contents
+2. **Direct content**: User provides or references specific content to review
+   - Use the provided content directly
+3. **Conversation context**: Extract relevant content from recent conversation
+   - Plans, documents, code, etc. that were recently discussed
+
 ## Usage
 
 When the user wants to review content:
 
 ```
+# If file path is specified, read it first:
+Read({ "file_path": "/path/to/file.md" })
+
+# Then start the review:
 mcp__interactive_review__start_review({
-  "content": "<markdown content to review>",
+  "content": "<content from file or conversation>",
   "title": "<descriptive title>"
 })
 ```
