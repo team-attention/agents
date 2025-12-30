@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# /// script
+# dependencies = ["mcp>=1.0.0"]
+# ///
 """
 Interactive Review MCP Server
 
